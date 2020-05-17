@@ -1,3 +1,9 @@
+'''
+Rules Detection Module
+[Acceleration Rules]
+Rule 1: When the ball is in the upper of the agent’s paddle -> move the paddle up
+Rule 2: When the ball is in the lower of the agent’s paddle -> move the paddle down
+'''
 import torch
 import numpy as np
 import cv2
