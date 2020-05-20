@@ -28,7 +28,7 @@ def get_args():
     # Human Rules Intervene
     parser.add_argument('--no-dril', default=False, action="store_true", help="No DRIL")
     # Decay Model
-    parser.add_argument('--decay', type=str, default="quad", help="rules-interposing decay model, [exp, quad, poly]")
+    parser.add_argument('--decay', type=str, default="quad", help="rules-interposing decay model, [exp, quad, poly, linear]")
     # Record Test Playing Process
     parser.add_argument('--no-record', default=False, action="store_true", help="Do Not Record Test Playing Process")
     # Data Saving Directory
@@ -65,8 +65,12 @@ def get_args():
                   "POLY_DECAY_X": -0.001542,
                   "POLY_DECAY_CONST": 0.95}
         print(f"=====\nThe Rules-Interposing Decay Model is Polynomial\nParams: {params}\n=====")
+    elif args.decay == "linear":
+        params = {"LINEAR_DECAY_X": -0.0014166,
+                  "LINEAR_DECAY_CONST": 0.95}
+        print(f"=====\nThe Rules-Interposing Decay Model is Linear\nParams: {params}\n=====")
     else:
-        assert False, "Please choose a supported decay model from [quad, exp, poly]"
+        assert False, "Please choose a supported decay model from [quad, exp, poly, linear]"
     args.params = params
     args.memory_size = 10 * args.initial_memory
     return args
@@ -83,6 +87,8 @@ def select_action(args, state, episode):
     elif not args.no_dril and args.decay == "exp" and sample < get_exponential_decay(args.params, episode):
         return choose_action_by_rules(state)
     elif not args.no_dril and args.decay == "poly" and sample < get_polynomial_decay(args.params, episode):
+        return choose_action_by_rules(state)
+    elif not args.no_dril and args.decay == "linear" and sample < get_linear_decay(args.params, episode):
         return choose_action_by_rules(state)
     else:
         # Choose DQN or random

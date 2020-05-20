@@ -21,7 +21,7 @@ def get_args():
     # Record Test Playing Process
     parser.add_argument('--record', default=False, action="store_true", help="Record Test Playing Process(ffmpeg required)")
     # Data Saving Directory
-    parser.add_argument('--load', type=str, default="./data/20200407/DRIL/pong_model_rules.pt", help="the Path of model.pt File.")
+    parser.add_argument('--load', type=str, default="./data/20200519/DRIL/pong_model_dril.pt", help="the Path of model.pt File.")
     # Render
     parser.add_argument('--no-render', default=False, action="store_true", help="Render the Playing Process")
     # Test Episodes
@@ -76,13 +76,22 @@ def pong_load_model(args=None):
     if not os.path.exists(args.load):
         assert False, "No Such File. Please check."
 
+    # print loaded parameters
+    directory = os.path.dirname(args.load)
+    if os.path.exists(directory + "/pong_params.npy"):
+        params = np.load((directory + "/pong_params.npy"), allow_pickle=True).item().__dict__
+        print("======\nThe Parameters of the model is:")
+        for item in params:
+            print(item + ":   " + str(params[item]))
+        print("======\n")
+
     # create environment
     env = gym.make("PongNoFrameskip-v4")
     env = make_env(env)
 
     load_model = DQN(n_actions=4).to(args.device)
     load_model.load_state_dict(torch.load(args.load, map_location=torch.device(args.device)))
-    print("=====\nBegin to Test model.\n=====\n")
+    print("======\nBegin to Test model.\n======\n")
     test_model(args, env, load_model)
 
 if __name__ == '__main__':

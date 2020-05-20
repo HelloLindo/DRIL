@@ -1,13 +1,12 @@
-from decimal import Decimal
 from matplotlib import pyplot as plt
+import numpy as np
 
 
-def read_file(file_name):
-    with open(file_name, "r") as file:
-        recorder = []
-        for lines in file:
-            recorder.append(float(Decimal(lines).quantize(Decimal('0.00'))))
-    return recorder
+def load_data(path, is_smooth=False):
+    if is_smooth:
+        return smooth(np.nan_to_num(np.load(path)), 0.90)
+    else:
+        return np.load(path)
 
 
 def smooth(target, wight):
@@ -19,50 +18,55 @@ def smooth(target, wight):
         last = smoothed_val
     return smoothed
 
-PLOT_REWARDS = True
-PLOT_Q_VALUES = True
-SAVE_PLOT = True
 
-if PLOT_REWARDS:
-    DQN_time_line = read_file("./pong_rules_episodes.txt")
-    DQN_rate = read_file("./pong_origin_avg_rewards.txt")
-
-    DQN_rate = smooth(DQN_rate, 0.8)
-
-    rule_time_line = read_file("./pong_rules_episodes.txt")
-    rule_rate = read_file("./pong_rules_avg_rewards.txt")
-
-    rule_rate = smooth(rule_rate, 0.8)
+if __name__ == '__main__':
+    PLOT_REWARDS = True
+    PLOT_Q_VALUES = True
+    SAVE_PLOT = True
+    DQN_DATA_DIR = "../data/20200515/DQN"
+    DRIL_DATA_DIR = "../data/20200519/DRIL"
 
     plt.rcParams['savefig.dpi'] = 300
     plt.rcParams['figure.dpi'] = 300
-    fig_r, ax_r = plt.subplots()
-    plt.xlabel("Episode", fontsize=20)
-    plt.ylabel("Average Reward", fontsize=20)
-    plt.title("Average Reward on Pong", fontsize=20)
-    dqn, = plt.plot(DQN_time_line, DQN_rate, color="#cc3311")
-    dqn_rule, = plt.plot(rule_time_line, rule_rate, color="#0077bb")
-    plt.legend(handles=[dqn, dqn_rule], labels=['DQN', 'DRIL'], loc='lower right')
-    if SAVE_PLOT:
-        plt.savefig("./Pong_Avg_Rewards_transBG.png", transparent=True)
-    plt.show()
 
-if PLOT_Q_VALUES:
-    DQN_time_line = read_file("./pong_rules_episodes.txt")
-    DQN_rate = read_file("./pong_origin_avg_q_values.txt")
+    if PLOT_REWARDS:
+        # DQN
+        dqn_episode_data = load_data(DQN_DATA_DIR + "/episode_pong_dqn.npy")
+        dqn_reward_data = load_data(DQN_DATA_DIR + "/reward_pong_dqn.npy", True)
 
-    rule_time_line = read_file("./pong_rules_episodes.txt")
-    rule_rate = read_file("./pong_rules_avg_q_values.txt")
+        # DRIL
+        dril_episode_data = load_data(DRIL_DATA_DIR + "/episode_pong_dril.npy")
+        dril_reward_data = load_data(DRIL_DATA_DIR + "/reward_pong_dril.npy", True)
 
-    plt.rcParams['savefig.dpi'] = 300
-    plt.rcParams['figure.dpi'] = 300
-    fig_r, ax_r = plt.subplots()
-    plt.xlabel("Training Epochs", fontsize=20)
-    plt.ylabel("Average Q Value", fontsize=20)
-    plt.title("Average Q on Pong", fontsize=20)
-    dqn, = plt.plot(DQN_time_line, DQN_rate, color="#cc3311")
-    dqn_rule, = plt.plot(rule_time_line, rule_rate, color="#0077bb")
-    plt.legend(handles=[dqn, dqn_rule], labels=['DQN', 'DRIL'], loc='lower right')
-    if SAVE_PLOT:
-        plt.savefig("./Pong_Avg_Q_Values_transBG.png", transparent=True)
-    plt.show()
+        fig_r, ax_r = plt.subplots()
+        plt.xlabel("Episode", fontsize=18)
+        plt.ylabel("Average Reward", fontsize=18)
+        plt.title("Average Reward on Pong", fontsize=20)
+        dqn, = plt.plot(dqn_episode_data, dqn_reward_data, color="#cc3311")
+        dqn_rule, = plt.plot(dril_episode_data, dril_reward_data, color="#0077bb")
+        plt.legend(handles=[dqn, dqn_rule], labels=['DQN', 'RIL'], loc='lower right')
+        if SAVE_PLOT:
+            # plt.savefig("./Pong_Avg_Rewards.png", transparent=True)
+            plt.savefig("./Pong_Avg_Rewards.png")
+        plt.show()
+
+    if PLOT_Q_VALUES:
+        # DQN
+        dqn_episode_data = load_data(DQN_DATA_DIR + "/episode_pong_dqn.npy")
+        dqn_q_value_data = load_data(DQN_DATA_DIR + "/q_value_pong_dqn.npy", True)
+
+        # DRIL
+        dril_episode_data = load_data(DRIL_DATA_DIR + "/episode_pong_dril.npy")
+        dril_q_value_data = load_data(DRIL_DATA_DIR + "/q_value_pong_dril.npy", True)
+
+        fig_r, ax_r = plt.subplots()
+        plt.xlabel("Training Epochs", fontsize=18)
+        plt.ylabel("Average Q Value", fontsize=18)
+        plt.title("Average Q on Pong", fontsize=20)
+        dqn, = plt.plot(dqn_episode_data, dqn_q_value_data, color="#cc3311")
+        dqn_rule, = plt.plot(dril_episode_data, dril_q_value_data, color="#0077bb")
+        plt.legend(handles=[dqn, dqn_rule], labels=['DQN', 'RIL'], loc='lower right')
+        if SAVE_PLOT:
+            # plt.savefig("./Pong_Avg_Q_Values.png", transparent=True)
+            plt.savefig("./Pong_Avg_Q_Values.png")
+        plt.show()
