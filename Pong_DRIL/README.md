@@ -1,4 +1,4 @@
-# Yuling Wu's Undergraduate Thesis Experiment - Pong Game
+# The Undergraduate Thesis Experiment - Pong Game
 This is an Experiment about *Dynamically Rule-Interposing Deep Reinforcement Learning and Rules Generalization*. 
 
 The idea is about proposing a method that combines both knowledge representation and DRL.
